@@ -1,0 +1,121 @@
+\documentclass[10pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=1.5cm]{geometry}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{array}
+
+\lstset{
+    language=[mips]Assembler,
+    backgroundcolor=\color{gray!4},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray},
+    frame=single,
+    breaklines=true,
+    showstringspaces=false
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    
+    \begin{tabular}{m{2.5cm} m{10.5cm} m{2.5cm}}
+        \includegraphics[width=2.2cm]{logo_uc.png} & 
+        \centering
+        \small\textbf{UNIVERSIDAD DE CARABOBO} \\
+        \small\textbf{FACULTAD DE CIENCIAS Y TECNOLOGÍA} \\
+        \small\textbf{ESCUELA DE COMPUTACIÓN} \\
+        \small\textbf{CAMPUS BÁRBULA} & 
+        \hfill\includegraphics[width=2.2cm]{logo_facyt.png} \\ 
+    \end{tabular}
+    
+    \vspace{5cm}
+    
+    \begin{center}
+        \large\textbf{MIPS32: Guía} \\[0.4cm]
+        \large\textbf{---} \\[0.4cm]
+    \end{center}
+    
+    \vfill 
+    
+    \begin{flushright}
+        \small
+        Daniel Gutiérrez \ \ CI:32047059 \\
+        \textbf{Arquitectura del computador}
+    \end{flushright}
+    
+    \vspace{2cm} 
+    
+    \begin{center}
+        \small\textbf{Bárbula, mayo de 2026}
+    \end{center}
+\end{titlepage}
+
+\section{¿Qué son las ``Variables'' en MIPS? (Los Registros)}
+En lugar de declarar variables con nombres como \texttt{int x}, en MIPS usas 32 contenedores fijos llamados \textbf{registros}. Cada uno tiene una regla de oro para que tu código no se rompa:
+
+\begin{table}[h!]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Registro} & \textbf{¿Qué significa/Para qué sirve?} & \textbf{Ejemplo en Código Común} \\ \midrule
+\texttt{\$zero}   & Siempre vale \texttt{0}. No se puede cambiar. & Inicializar algo en cero. \\
+\textbf{\texttt{\$a0} a \texttt{\$a3}} & \textbf{A}rgumentos. Para pasarle datos a una función. & Los parámetros: \texttt{funcion(a0, a1)} \\
+\textbf{\texttt{\$v0} a \texttt{\$v1}} & \textbf{V}alores de retorno. Lo que devuelve una función o syscall. & El \texttt{return resultado;} \\
+\texttt{\$t0} a \texttt{\$t9} & \textbf{T}emporales. Para variables rápidas o índices de bucles. & El \texttt{int i = 0;} en un \texttt{for}. \\
+\texttt{\$s0} a \texttt{\$s7} & \textbf{S}aved (Guardados). Conservan su valor. Ideales para arreglos. & Variables globales o principales. \\
+\texttt{\$ra}      & \textbf{R}eturn \textbf{A}ddress. Guarda la dirección para saber cómo volver. & Saber a dónde regresar tras un método. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Instrucciones}
+Con este grupo de 15 instrucciones puedes resolver el 95\% de tus ejercicios de lógica, condicionales, bucles y búsquedas:
+
+\subsection{Aritmética y Lógica Básica}
+\begin{enumerate}
+    \item \texttt{add \$t0, \$t1, \$t2} $\rightarrow$ Suma: \texttt{\$t0 = \$t1 + \$t2}
+    \item \texttt{sub \$t0, \$t1, \$t2} $\rightarrow$ Resta: \texttt{\$t0 = \$t1 - \$t2}
+    \item \texttt{addi \$t0, \$t1, 5}  $\rightarrow$ Suma inmediata (añadir un número directo): \texttt{\$t0 = \$t1 + 5}
+    \item \texttt{and \$t0, \$t1, \$t2} $\rightarrow$ Operación lógica AND bit a bit.
+    \item \texttt{or \$t0, \$t1, \$t2}  $\rightarrow$ Operación lógica OR bit a bit.
+\end{enumerate}
+
+\subsection{Manejo de Arreglos y Memoria}
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item \texttt{sll \$t1, \$t0, 2}   $\rightarrow$ Multiplica el índice por 4. \textbf{Obligatorio para moverte en arreglos de enteros.}
+    \item \texttt{lw \$t0, 0(\$s0)}    $\rightarrow$ \textbf{Load Word} (Cargar). Trae un dato de la memoria al registro (\texttt{x = A[i]}).
+    \item \texttt{sw \$t0, 0(\$s0)}    $\rightarrow$ \textbf{Store Word} (Guardar). Saca un dato del registro y lo mete a la memoria (\texttt{A[i] = x}).
+\end{enumerate}
+
+\subsection{Saltos y Condicionales (Control de Flujo)}
+\begin{enumerate}
+    \setcounter{enumi}{8}
+    \item \texttt{beq \$t0, \$t1, bloqueCodigo} $\rightarrow$ Salta si son iguales (\texttt{if (a == b) bloqueCodigo}).
+    \item \texttt{bne \$t0, \$t1, bloqueCodigo} $\rightarrow$ Salta si son diferentes (\texttt{if (a != b) goto bloqueCodigo}).
+    \item \texttt{j bloqueCodigo}               $\rightarrow$ Salto incondicional. Te manda directo a una etiqueta sin preguntar.
+\end{enumerate}
+
+\subsection{Funciones (Llamadas y Retornos)}
+\begin{enumerate}
+    \setcounter{enumi}{11}
+    \item \texttt{jal NombreFuncion}    $\rightarrow$ Salta a la función y guarda automáticamente dónde se quedó en \texttt{\$ra}.
+    \item \texttt{jr \$ra}             $\rightarrow$ Vuelve de la función saltando a la dirección guardada en \texttt{\$ra}.
+\end{enumerate}
+
+\subsection{Pseudoinstrucciones}
+Abreviaciones que el simulador entiende:
+\begin{enumerate}
+    \setcounter{enumi}{13}
+    \item \texttt{li \$t0, 10}          $\rightarrow$ \textbf{Load Immediate}. Mete un número directo a una variable (\texttt{i = 10}).
+    \item \texttt{move \$t0, \$t1}       $\rightarrow$ Copia el valor de \texttt{\$t1} dentro de \texttt{\$t0} (\texttt{a = b}).
+\end{enumerate}
+
+\end{document}
